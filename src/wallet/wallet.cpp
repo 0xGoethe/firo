@@ -1141,10 +1141,14 @@ bool CWallet::WaitForUnlock() {
 bool CWallet::ChangeWalletPassphrase(
     const SecureString& strOldWalletPassphrase,
     const SecureString& strNewWalletPassphrase,
-    bool* indeterminate)
+    bool* indeterminate,
+    bool* databaseError)
 {
     if (indeterminate) {
         *indeterminate = false;
+    }
+    if (databaseError) {
+        *databaseError = false;
     }
 
     if (GetDatabase().Format() == DatabaseFormat::BERKELEY) {
@@ -1194,6 +1198,7 @@ bool CWallet::ChangeWalletPassphrase(
 
     LOCK(cs_wallet);
     const bool fWasLocked = IsLocked();
+    Lock();
 
     bool success = false;
     bool databaseWriteAttempted = false;
@@ -1227,10 +1232,16 @@ bool CWallet::ChangeWalletPassphrase(
                     break;
                 }
                 if (fFileBacked) {
+                    if (databaseError) {
+                        *databaseError = true;
+                    }
                     CWalletDB walletdb(GetDatabase());
                     databaseWriteAttempted = true;
                     if (!walletdb.WriteMasterKey(pMasterKey.first, updatedMasterKey)) {
                         break;
+                    }
+                    if (databaseError) {
+                        *databaseError = false;
                     }
                 }
 

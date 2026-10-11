@@ -1017,8 +1017,9 @@ void ThreadFlushWalletDB()
 
         if (nLastFlushed != CWalletDB::GetUpdateCounter() && GetTime() - nLastWalletUpdate >= 2)
         {
+            const unsigned int nFlushUpdate = CWalletDB::GetUpdateCounter();
             if (pwalletMain && pwalletMain->GetDatabase().PeriodicFlush()) {
-                nLastFlushed = CWalletDB::GetUpdateCounter();
+                nLastFlushed = nFlushUpdate;
             }
         }
     }

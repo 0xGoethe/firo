@@ -532,7 +532,8 @@ void WalletModel::lockWalletDelayed(int seconds)
 bool WalletModel::changePassphrase(
     const SecureString& oldPass,
     const SecureString& newPass,
-    bool* indeterminate)
+    bool* indeterminate,
+    bool* databaseError)
 {
     bool retval;
     {
@@ -541,7 +542,8 @@ bool WalletModel::changePassphrase(
         retval = wallet->ChangeWalletPassphrase(
             oldPass,
             newPass,
-            indeterminate);
+            indeterminate,
+            databaseError);
     }
     return retval;
 }
